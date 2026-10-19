@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-var ErrNotFounc = errors.New("short URL not found")
+var ErrNotFound = errors.New("short URL not found")
 
 type Store interface {
 	Save(ctx context.Context, code string, originalURL string) error
