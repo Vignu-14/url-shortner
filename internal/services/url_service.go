@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+	"fmt"
 	"url-shortner/internal/storage"
 )
 
@@ -16,13 +18,19 @@ func NewURLService(store storage.Store) *URLService {
 	}
 }
 
-func Shorten(longUrl string) string {
+func (s URLService) Shorten(ctx context.Context, longUrl string) (string, error) {
 	shortUrl := shortUrl(longUrl)
-
-	return shortUrl
+	err := s.store.Save(ctx, shortUrl, longUrl)
+	if err != nil {
+		return "", fmt.Errorf("can not generate short url: %w", err)
+	}
+	return shortUrl, nil
 }
 
-func Resolve(shortUrl string) string {
-	longUrl := "testing"
-	return longUrl
+func (s URLService) Resolve(ctx context.Context, shortUrl string) (string, error) {
+	originalUrl, err := s.store.Get(ctx, shortUrl)
+	if err != nil {
+		return "", fmt.Errorf("cannot get original request or does not exist: %w", err)
+	}
+	return originalUrl, nil
 }
