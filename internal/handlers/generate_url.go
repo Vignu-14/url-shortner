@@ -33,15 +33,33 @@ func (h *Handler) GenerateUrl(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "cannot generate short url", http.StatusInternalServerError)
 		return
 	}
-	
+
 	var response models.Url
 	response.Url = shortUrl
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
-		"status": "success",
+		"status":   "success",
 		"shortUrl": "http://localhost:8080/" + response.Url,
 	})
 }
 
+// GET /
+func (h *Handler) GetUrl(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	shortUrl := r.PathValue("shortUrl")
+
+	originalUrl, err := h.services.Resolve(r.Context(), shortUrl)
+	if err != nil {
+		http.Error(w, "url does not exist", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, originalUrl, http.StatusPermanentRedirect)
+
+}
