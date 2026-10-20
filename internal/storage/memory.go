@@ -26,7 +26,7 @@ func (m *MemoryStore) Save(ctx context.Context, code string, originalURL string)
 }
 
 func (m *MemoryStore) Get(ctx context.Context, code string) (string, error) {
-	m.mu.RLocker()
+	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	originalURL, ok := m.urls[code]

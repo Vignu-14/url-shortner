@@ -41,7 +41,7 @@ func (h *Handler) GenerateUrl(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":   "success",
-		"shortUrl": "http://localhost:8080/" + response.Url,
+		"shortUrl": "http://localhost:3000/" + response.Url,
 	})
 }
 
