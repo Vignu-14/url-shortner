@@ -16,6 +16,8 @@ func NewMemoryStore() *MemoryStore{
 	}
 }
 
+var _ Store = (*MemoryStore)(nil)
+
 func (m *MemoryStore) Save(ctx context.Context, code string, originalURL string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
