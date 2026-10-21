@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -16,5 +17,16 @@ func NewRedisStore(client *redis.Client) *RedisStore {
 }
 
 func (s *RedisStore) Save(ctx context.Context, code string, originalURL string) error {
-	return s.client.Set(ctx, code, originalURL, time.Second * 60 ).Err()
+	return s.client.Set(ctx, code, originalURL, time.Second*60).Err()
+}
+
+func (s *RedisStore) Get(ctx context.Context, code string) (string, error) {
+	originalUrl, err := s.client.Get(ctx, code).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return "", ErrNotFound
+		}
+		return "", err
+	}
+	return originalUrl, nil
 }
