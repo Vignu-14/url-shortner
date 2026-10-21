@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 	"url-shortner/internal/handlers"
 	"url-shortner/internal/services"
@@ -25,17 +26,15 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
-	
-	redisDb := storage.NewRedisStore(rdb)
-	Pool := storage.NewDBStorage(pool)
 
-	store := storage.NewCachedStore(Pool, redisDb)
-	
+	redisDb := storage.NewRedisStore(rdb)
+	db := storage.NewDBStorage(pool)
+
+	store := storage.NewCachedStore(db, redisDb)
+
 	ser := services.NewURLService(store)
 	// mem := storage.NewMemoryStore()
 	hand := handlers.NewHandler(*ser)
-	
-
 
 	mux := http.NewServeMux()
 
@@ -48,7 +47,8 @@ func main() {
 }
 
 func ConnectDB() (*pgxpool.Pool, error) {
-	connStr := "postgres://postgres:admin@localhost:5432/urlshortner?sslmode=disable"
+	
+	connStr := os.Getenv("DBURL")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
@@ -63,15 +63,16 @@ func ConnectDB() (*pgxpool.Pool, error) {
 }
 
 func redisClient() (*redis.Client, error) {
+	addr := os.Getenv("REDISADDR")
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-		Password: "",
-		PoolSize: 200,
+		Addr:         addr,
+		Password:     "",
+		PoolSize:     200,
 		MinIdleConns: 50,
-		DB: 0,
+		DB:           0,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 2)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 
 	err := rdb.Ping(ctx).Err()

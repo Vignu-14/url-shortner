@@ -21,11 +21,11 @@ func (db *DBStorage) Save(ctx context.Context, shortUrl, originalURL string) err
 			  VALUES($1, $2)
 			  ON CONFLICT (short_url) DO UPDATE SET long_url = EXCLUDED.long_url`
 
-	cmgTag, err := db.Pool.Exec(ctx, query, shortUrl, originalURL)
+	cmdTag, err := db.Pool.Exec(ctx, query, shortUrl, originalURL)
 	if err != nil {
 		return fmt.Errorf("cannot store the url in database: %w", err)
 	}
-	if cmgTag.RowsAffected() == 0 {
+	if cmdTag.RowsAffected() == 0 {
 		return fmt.Errorf("url storage failed in database: no rows affected")
 	}
 	return nil
@@ -36,7 +36,7 @@ func (db *DBStorage) Get(ctx context.Context, shortUrl string) (string, error) {
 	var originalURL string
 	err := db.Pool.QueryRow(ctx, query, shortUrl).Scan(&originalURL)
 	if err != nil {
-		return "", fmt.Errorf("cannot retreive original url or does not exist: %w", err)
+		return "", fmt.Errorf("cannot retrieve original url or does not exist: %w", err)
 	}
 	return originalURL, nil
 }
