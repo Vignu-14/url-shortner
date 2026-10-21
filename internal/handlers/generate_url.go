@@ -28,6 +28,14 @@ func (h *Handler) GenerateUrl(w http.ResponseWriter, r *http.Request) {
 	var longUrl models.Url
 
 	err :=json.NewDecoder(r.Body).Decode(&longUrl)
+	if err != nil {
+		http.Error(w, "invalid JSON body", http.StatusBadRequest)
+		return
+	}
+	if longUrl.Url == "" {
+		http.Error(w, "invalid JSON body", http.StatusBadRequest)
+		return
+	}
 
 	shortUrl, err := h.services.Shorten(r.Context(), longUrl.Url)
 	if err != nil {
