@@ -35,16 +35,19 @@ func (rl *ratelimiter) resetVisitorCount() {
 
 func (rl *ratelimiter) RateLimiter(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		host, _, _ := net.SplitHostPort(r.RemoteAddr)
+		host, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			host = r.RemoteAddr
+		}
 		
 		rl.mu.Lock()
 		rl.visitors[host]++
+		rl.mu.Unlock()
 
 		if rl.visitors[host] > rl.limit {
 			http.Error(w, "too many requests", http.StatusTooManyRequests)
 			return
 		}
-		rl.mu.Unlock()
 		next(w, r)
 	}
 }

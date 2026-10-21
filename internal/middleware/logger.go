@@ -12,6 +12,6 @@ func LoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		next(w, r)
 
-		fmt.Printf("%s %s %v", r.Method, r.URL.Path, time.Since(start))
+		fmt.Printf("%s %s %v\n", r.Method, r.URL.Path, time.Since(start))
 	}
 }
