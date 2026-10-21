@@ -42,9 +42,10 @@ func (rl *ratelimiter) RateLimiter(next http.HandlerFunc) http.HandlerFunc {
 		
 		rl.mu.Lock()
 		rl.visitors[host]++
+		count := rl.visitors[host]
 		rl.mu.Unlock()
 
-		if rl.visitors[host] > rl.limit {
+		if count > rl.limit {
 			http.Error(w, "too many requests", http.StatusTooManyRequests)
 			return
 		}
