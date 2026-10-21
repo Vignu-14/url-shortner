@@ -38,7 +38,7 @@ func main(){
 }
 
 func ConnectDB () (*pgxpool.Pool, error) {
-	connStr := "postgres://postgres:admin@localhost:5432/short_urls?sslmode=disable"
+	connStr := "postgres://postgres:admin@localhost:5432/urlshortner?sslmode=disable"
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
