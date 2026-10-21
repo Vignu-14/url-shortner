@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 )
 
 var ErrNotFound = errors.New("short URL not found")
@@ -32,9 +33,23 @@ func (s *CachedStore) Save(ctx context.Context, code, originalURL string) error 
 		return err
 	}
 
-	if err := s.cache.Save(ctx, code, originalURL); err != nil {
-		log.Printf("Redis cache write failed: %v", err)
-	}
+	bgctx := context.WithoutCancel(ctx)
+
+	go func(){
+		timeoutCtx, cancel := context.WithTimeout(bgctx, time.Second * 2)
+		defer cancel()
+
+		err := s.cache.Save(timeoutCtx, code, originalURL)
+		if err != nil {
+			log.Printf("async redis cache write failed: %v", err)
+		}
+
+	}()
+
+
+	// if err := s.cache.Save(ctx, code, originalURL); err != nil {
+	// 	log.Printf("Redis cache write failed: %v", err)
+	// }
 
 	return nil
 }

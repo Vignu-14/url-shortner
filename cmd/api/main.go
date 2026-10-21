@@ -39,8 +39,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	postLimiter := mu.NewRateLimiter(30, time.Second * 60)
-	getLimiter := mu.NewRateLimiter(500, time.Second * 60)
+	postLimiter := mu.NewRateLimiter(3000000, time.Second * 60)
+	getLimiter := mu.NewRateLimiter(500000000, time.Second * 60)
 	
 
 	mux.HandleFunc("POST /", mu.LoggerMiddleware(postLimiter.RateLimiter(hand.GenerateUrl)))
@@ -60,8 +60,10 @@ func main() {
 
 
 func ConnectDB() (*pgxpool.Pool, error) {
-	
 	connStr := os.Getenv("DBURL")
+	if connStr == "" {
+		connStr = "postgres://postgres:admin@localhost:5432/urlshortner?sslmode=disable"
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
@@ -77,6 +79,9 @@ func ConnectDB() (*pgxpool.Pool, error) {
 
 func redisClient() (*redis.Client, error) {
 	addr := os.Getenv("REDISADDR")
+	if addr == "" {
+		addr = "localhost:6379"
+	}
 	rdb := redis.NewClient(&redis.Options{
 		Addr:         addr,
 		Password:     "",
