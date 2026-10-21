@@ -46,5 +46,8 @@ func ConnectDB () (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := Pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("failed to ping db: %w", err)
+	}
 	return Pool, nil
 }

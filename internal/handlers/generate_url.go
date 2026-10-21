@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"url-shortner/internal/models"
 	"url-shortner/internal/services"
@@ -30,6 +31,7 @@ func (h *Handler) GenerateUrl(w http.ResponseWriter, r *http.Request) {
 
 	shortUrl, err := h.services.Shorten(r.Context(), longUrl.Url)
 	if err != nil {
+		log.Printf("ERROR: generate short url failed: %v", err)
 		http.Error(w, "cannot generate short url", http.StatusInternalServerError)
 		return
 	}

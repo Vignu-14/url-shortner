@@ -18,14 +18,15 @@ func NewDBStorage (pool *pgxpool.Pool) *DBStorage {
 
 func (db *DBStorage) Save(ctx context.Context, shortUrl, originalURL string) error {
 	query := `INSERT INTO short_urls(short_url, long_url)
-			  VALUES($1, $2)`
+			  VALUES($1, $2)
+			  ON CONFLICT (short_url) DO UPDATE SET long_url = EXCLUDED.long_url`
 
 	cmgTag, err := db.Pool.Exec(ctx, query, shortUrl, originalURL)
 	if err != nil {
 		return fmt.Errorf("cannot store the url in database: %w", err)
 	}
 	if cmgTag.RowsAffected() == 0 {
-		return fmt.Errorf("url storage failed in database: %w", err)
+		return fmt.Errorf("url storage failed in database: no rows affected")
 	}
 	return nil
 }
