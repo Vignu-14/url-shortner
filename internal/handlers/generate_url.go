@@ -27,7 +27,7 @@ func (h *Handler) GenerateUrl(w http.ResponseWriter, r *http.Request) {
 
 	var longUrl models.Url
 
-	json.NewDecoder(r.Body).Decode(&longUrl)
+	err :=json.NewDecoder(r.Body).Decode(&longUrl)
 
 	shortUrl, err := h.services.Shorten(r.Context(), longUrl.Url)
 	if err != nil {
@@ -58,7 +58,7 @@ func (h *Handler) GetUrl(w http.ResponseWriter, r *http.Request) {
 
 	originalUrl, err := h.services.Resolve(r.Context(), shortUrl)
 	if err != nil {
-		http.Error(w, "url does not exist", http.StatusInternalServerError)
+		http.Error(w, "url does not exist", http.StatusNotFound)
 		return
 	}
 

@@ -40,5 +40,3 @@ func (db *DBStorage) Get(ctx context.Context, shortUrl string) (string, error) {
 	}
 	return originalURL, nil
 }
-
-// "postgres://postgres:admin@localhost:5432/school?sslmode=disable"
