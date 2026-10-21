@@ -44,9 +44,7 @@ func (rl *ratelimiter) RateLimiter(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "too many requests", http.StatusTooManyRequests)
 			return
 		}
-
 		rl.mu.Unlock()
-
-
+		next(w, r)
 	}
 }
