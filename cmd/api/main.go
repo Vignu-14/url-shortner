@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 	"url-shortner/internal/handlers"
@@ -15,11 +16,16 @@ import (
 func main(){
 
 	pool, err := ConnectDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	Pool := storage.NewDBStorage(pool)
 
 	mux := http.NewServeMux()
 
-	mem := storage.NewMemoryStore()
-	ser := services.NewURLService(mem)
+	// mem := storage.NewMemoryStore()
+	ser := services.NewURLService(Pool)
 	hand := handlers.NewHandler(*ser)
 
 	mux.HandleFunc("POST /", hand.GenerateUrl)
