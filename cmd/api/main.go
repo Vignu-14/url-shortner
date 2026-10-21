@@ -26,16 +26,18 @@ func main() {
 		log.Print(err)
 	}
 	
-	storeRdb := storage.NewRedisStore(rdb)
+	redisDb := storage.NewRedisStore(rdb)
 	Pool := storage.NewDBStorage(pool)
 
-	mux := http.NewServeMux()
-
+	store := storage.NewCachedStore(Pool, redisDb)
+	
+	ser := services.NewURLService(store)
 	// mem := storage.NewMemoryStore()
-	ser := services.NewURLService(Pool)
-	ser = services.NewURLService(storeRdb)
-
 	hand := handlers.NewHandler(*ser)
+	
+
+
+	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /", hand.GenerateUrl)
 	mux.HandleFunc("GET /{shortUrl}", hand.GetUrl)
@@ -62,7 +64,7 @@ func ConnectDB() (*pgxpool.Pool, error) {
 
 func redisClient() (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:3679",
+		Addr: "localhost:6379",
 		Password: "",
 		DB: 0,
 	})
