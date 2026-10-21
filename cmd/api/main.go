@@ -66,6 +66,8 @@ func redisClient() (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 		Password: "",
+		PoolSize: 200,
+		MinIdleConns: 50,
 		DB: 0,
 	})
 
