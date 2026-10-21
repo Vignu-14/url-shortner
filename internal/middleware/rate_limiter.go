@@ -14,7 +14,7 @@ type ratelimiter struct {
 	duration time.Duration
 }
 
-func NewRateLimit(limit int, duration time.Duration) *ratelimiter {
+func NewRateLimiter(limit int, duration time.Duration) *ratelimiter {
 	rl := &ratelimiter{
 		visitors: make(map[string]int),
 		limit:    limit,

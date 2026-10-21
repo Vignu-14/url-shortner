@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 	"url-shortner/internal/handlers"
+	mu "url-shortner/internal/middleware"
 	"url-shortner/internal/services"
 	"url-shortner/internal/storage"
 
@@ -38,13 +39,25 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /", hand.GenerateUrl)
-	mux.HandleFunc("GET /{shortUrl}", hand.GetUrl)
+	postLimiter := mu.NewRateLimiter(30, time.Second * 60)
+	getLimiter := mu.NewRateLimiter(500, time.Second * 60)
+	
+
+	mux.HandleFunc("POST /", mu.LoggerMiddleware(postLimiter.RateLimiter(hand.GenerateUrl)))
+	mux.HandleFunc("GET /{shortUrl}", mu.LoggerMiddleware(getLimiter.RateLimiter(hand.GetUrl)))
 
 	fmt.Println("server started on port 3000")
 	http.ListenAndServe(":3000", mux)
 
 }
+
+
+
+
+
+
+
+
 
 func ConnectDB() (*pgxpool.Pool, error) {
 	
