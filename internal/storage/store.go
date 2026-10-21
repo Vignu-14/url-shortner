@@ -12,3 +12,6 @@ type Store interface {
 	Get(ctx context.Context, code string) (string, error)
 }
 
+type CachedStore struct {
+	
+}

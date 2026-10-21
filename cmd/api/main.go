@@ -21,12 +21,20 @@ func main() {
 		log.Fatal(err)
 	}
 
+	rdb, err := redisClient()
+	if err != nil {
+		log.Print(err)
+	}
+	
+	storeRdb := storage.NewRedisStore(rdb)
 	Pool := storage.NewDBStorage(pool)
 
 	mux := http.NewServeMux()
 
 	// mem := storage.NewMemoryStore()
 	ser := services.NewURLService(Pool)
+	ser = services.NewURLService(storeRdb)
+
 	hand := handlers.NewHandler(*ser)
 
 	mux.HandleFunc("POST /", hand.GenerateUrl)
